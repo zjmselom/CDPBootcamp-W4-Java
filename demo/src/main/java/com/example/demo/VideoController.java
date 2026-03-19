@@ -7,25 +7,24 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
-import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/videos")
 public class VideoController {
     
-    private List<Video> videos = new ArrayList<>();
+    @Autowired
+    private VideoService videoService;
 
     @GetMapping
     public List<Video> getAllVideos() {
-        return videos;
+        return videoService.getAllVideos();
     }
 
     @GetMapping("/available")
     public List<Video> getAvailableVideos() {
-        return videos.stream()
-            .filter(Video::isAvailable)
-            .toList();
+        return videoService.getAvailableVideos();
     }
 
     @GetMapping("/{id}")
@@ -35,23 +34,19 @@ public class VideoController {
 
     @PostMapping("/add/movie")
     public String createVideo(@RequestBody Video video) {
-        videos.add(video);
+        videoService.addVideo(video);
         return "Video created: " + video.getTitle();
     }
 
     @PutMapping("/{title}/rent")
     public String rentVideo(@PathVariable String title) {
-        videos.stream()
-            .filter(v -> v.getTitle().equals(title))
-            .forEach(Video::rentVideo);
+        videoService.rentVideo(title);
         return "Video rented: " + title;
     }
 
     @PutMapping("/{title}/return")
     public String returnVideo(@PathVariable String title) {
-        videos.stream()
-            .filter(v -> v.getTitle().equals(title))
-            .forEach(Video::returnVideo);
+        videoService.returnVideo(title);
         return "Video returned: " + title;
     }
 }
